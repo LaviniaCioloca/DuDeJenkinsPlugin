@@ -3,17 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>$PROJECT_NAME$</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+    }
+    table.center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
 </head>
 <body>
 Project $PROJECT_NAME$:
-<table border="1">
+<table class="center">
   <tr>
-    <th>Classes number</th>
-    <th>Lines number</th>
+    <th>Files analysed</th>
+    <th>Duplicated fragments</th>
+    <th>Number of files with duplicated fragments</th>
+    <th>Files with duplicated fragments</th>
+    <th>Percentage of files with duplicates</th>
   </tr>
   <tr>
-    <td>$CLASSES_NUMBER$</td>
-    <td>$LINES_NUMBER$</td>
+    <td>$NUMBER_OF_FILES_ANALYSED$</td>
+    <td>$NUMBER_OF_DUPLICATED_CODE_FRAGMENTS$</td>
+    <td>$NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS$</td>
+    <td>$FILES_WITH_DUPLICATE_FRAGMENTS$</td>
+    <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$</td>
   </tr>
 </table>
 </body>
