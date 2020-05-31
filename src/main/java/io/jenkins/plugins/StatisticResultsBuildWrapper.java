@@ -9,7 +9,8 @@ import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
-import io.jenkins.plugins.dude.model.StatisticResults;
+import io.jenkins.plugins.dude.model.DuDeStatisticResults;
+import io.jenkins.plugins.dude.model.PluginResults;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -27,12 +28,15 @@ import java.util.stream.Collectors;
 
 public class StatisticResultsBuildWrapper extends BuildWrapper {
 
-    private static final String REPORT_TEMPLATE_PATH = "/stats.html";
-    private static final String PROJECT_NAME_VAR = "$PROJECT_NAME$";
+    private static final String DUDE_STATISTICS_HTML_PATH = "/dude-statistics.html";
+    private static final String DUDE_STATISTICS_JSON_PATH = "/dude-statistics.json";
+    private static final String PROJECT_NAME = "$PROJECT_NAME$";
+    private static final String CURRENT_BUILD_NUMBER = "$CURRENT_BUILD_NUMBER$";
+    private static final String PREVIOUS_BUILD_NUMBER = "$PREVIOUS_BUILD_NUMBER$";
     private static final String NUMBER_OF_FILES_ANALYSED = "$NUMBER_OF_FILES_ANALYSED$";
     private static final String NUMBER_OF_DUPLICATED_CODE_FRAGMENTS = "$NUMBER_OF_DUPLICATED_CODE_FRAGMENTS$";
-    private static final String FILES_WITH_DUPLICATE_FRAGMENTS = "$FILES_WITH_DUPLICATE_FRAGMENTS$";
     private static final String NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS = "$NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS$";
+    private static final String FILES_WITH_DUPLICATE_FRAGMENTS = "$FILES_WITH_DUPLICATE_FRAGMENTS$";
     private static final String PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS =
             "$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$";
 
@@ -46,30 +50,39 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
             @Override
             public boolean tearDown(AbstractBuild build, BuildListener listener)
                     throws IOException, InterruptedException {
-                StatisticResults duDeStatisticResults = buildDuDeStatisticResults(build.getWorkspace());
-                String report = generateReport(build.getProject().getDisplayName(), duDeStatisticResults);
-                File artifactsDir = build.getArtifactsDir();
+                final DuDeStatisticResults currentDuDeDuDeStatisticResults =
+                        buildCurrentDuDeStatisticResults(build.getWorkspace());
+                final PluginResults pluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeDuDeStatisticResults,
+                                                                       build.getId(), build.getPreviousBuild().getId());
+                final String reportHTML = generateHTMLReport(pluginResults);
+                final File artifactsDir = build.getArtifactsDir();
                 if (!artifactsDir.isDirectory()) {
-                    boolean success = artifactsDir.mkdirs();
+                    final boolean success = artifactsDir.mkdirs();
                     if (!success) {
-                        listener.getLogger().println("Can't create artifacts directory at "
-                                                     + artifactsDir.getAbsolutePath());
-                    } else {
-                        listener.getLogger().println("Will write report: " + report);
+                        listener.getLogger().println("Can't create artifacts directory at " + artifactsDir.getAbsolutePath());
                     }
                 }
-                String path = artifactsDir.getCanonicalPath() + REPORT_TEMPLATE_PATH;
+
+                final String pathJSONReport = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_JSON_PATH;
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathJSONReport),
+                                                                                       StandardCharsets.UTF_8))) {
+                    writer.write(new ObjectMapper().writeValueAsString(pluginResults));
+                }
+
+                String path = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_HTML_PATH;
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path),
                                                                                        StandardCharsets.UTF_8))) {
-                    writer.write(report);
+                    writer.write(reportHTML);
                 }
+
                 return super.tearDown(build, listener);
             }
         };
     }
 
-    private static StatisticResults buildDuDeStatisticResults(FilePath root) throws IOException, InterruptedException {
-        StatisticResults statisticResults = null;
+    private static DuDeStatisticResults buildCurrentDuDeStatisticResults(FilePath root) throws IOException,
+                                                                                               InterruptedException {
+        DuDeStatisticResults DuDeStatisticResults = null;
 
         Stack<FilePath> toProcess = new Stack<>();
         toProcess.push(root);
@@ -79,41 +92,59 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                 toProcess.addAll(path.list());
             } else if (path.getName().equals("dude-StatisticResults.json")) {
                 final InputStream statisticResultsStream = path.read();
-                statisticResults = new ObjectMapper().readValue(IOUtils.toString(statisticResultsStream), StatisticResults.class);
+                DuDeStatisticResults = new ObjectMapper().readValue(IOUtils.toString(statisticResultsStream), DuDeStatisticResults.class);
             }
         }
 
-        return statisticResults;
+        return DuDeStatisticResults;
     }
 
-    private static String generateReport(String projectName, StatisticResults statisticResults) throws IOException {
-        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-        try (InputStream in = StatisticResultsBuildWrapper.class.getResourceAsStream(REPORT_TEMPLATE_PATH)) {
-            byte[] buffer = new byte[8192];
+    private static PluginResults generateJSONReport(final String projectName,
+                                                    final DuDeStatisticResults currentDuDeStatisticResults,
+                                                    final String currentBuildNumber, final String previousBuildNumber) {
+
+        final PluginResults pluginResults = new PluginResults();
+        pluginResults.setProjectName(projectName);
+        pluginResults.setCurrentBuildNumber(currentBuildNumber);
+        pluginResults.setPreviousBuildNumber(previousBuildNumber);
+        pluginResults.setNumberOfFilesAnalysed(String.valueOf(currentDuDeStatisticResults.getNumberOfFilesAnalysed()));
+        pluginResults.setNumberOfDuplicatedCodeFragments(String.valueOf(currentDuDeStatisticResults.getNumberOfDuplicatedCodeFragments()));
+        pluginResults.setNumberOfFilesContainingDuplicateFragments(String.valueOf(currentDuDeStatisticResults.getNumberOfFilesContainingDuplicateFragments()));
+        pluginResults.setFilesWithDuplicateFragments(getFilesWithDuplicateFragmentsAsString(currentDuDeStatisticResults));
+        pluginResults.setPercentageOfFilesAnalysedThatHaveDuplicateFragments(String.valueOf(currentDuDeStatisticResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments()));
+
+        return pluginResults;
+    }
+
+    private static String generateHTMLReport(final PluginResults pluginResults) throws IOException {
+        final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        try (final InputStream in = StatisticResultsBuildWrapper.class.getResourceAsStream(DUDE_STATISTICS_HTML_PATH)) {
+            final byte[] buffer = new byte[8192];
             int read;
             while ((read = in.read(buffer)) >= 0) {
                 bOut.write(buffer, 0, read);
             }
         }
+
         String content = new String(bOut.toByteArray(), StandardCharsets.UTF_8);
-        content = content.replace(PROJECT_NAME_VAR, projectName);
-        content = content.replace(NUMBER_OF_FILES_ANALYSED, String.valueOf(statisticResults.getNumberOfFilesAnalysed()));
-        content = content.replace(NUMBER_OF_DUPLICATED_CODE_FRAGMENTS, String.valueOf(statisticResults.getNumberOfDuplicatedCodeFragments()));
-        content = content.replace(NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS,
-                                  String.valueOf(statisticResults.getNumberOfFilesContainingDuplicateFragments()));
-        content = content.replace(FILES_WITH_DUPLICATE_FRAGMENTS,
-                                  getFilesWithDuplicateFragmentsAsString(statisticResults));
+        content = content.replace(PROJECT_NAME, pluginResults.getProjectName());
+        content = content.replace(CURRENT_BUILD_NUMBER, pluginResults.getCurrentBuildNumber());
+        content = content.replace(PREVIOUS_BUILD_NUMBER, pluginResults.getPreviousBuildNumber());
+        content = content.replace(NUMBER_OF_FILES_ANALYSED, pluginResults.getNumberOfFilesAnalysed());
+        content = content.replace(NUMBER_OF_DUPLICATED_CODE_FRAGMENTS, pluginResults.getNumberOfDuplicatedCodeFragments());
+        content = content.replace(NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS, pluginResults.getNumberOfFilesContainingDuplicateFragments());
+        content = content.replace(FILES_WITH_DUPLICATE_FRAGMENTS, pluginResults.getFilesWithDuplicateFragments());
         content = content.replace(PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS,
-                                  String.valueOf(statisticResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments()));
+                                  pluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
 
         return content;
     }
 
-    private static String getFilesWithDuplicateFragmentsAsString(final StatisticResults statisticResults) {
-        return statisticResults.getFilesWithDuplicateFragments()
-                               .stream()
-                               .map(Object::toString)
-                               .collect(Collectors.joining("\n"));
+    private static String getFilesWithDuplicateFragmentsAsString(final DuDeStatisticResults DuDeStatisticResults) {
+        return DuDeStatisticResults.getFilesWithDuplicateFragments()
+                                   .stream()
+                                   .map(Object::toString)
+                                   .collect(Collectors.joining("\n"));
     }
 
     @Extension

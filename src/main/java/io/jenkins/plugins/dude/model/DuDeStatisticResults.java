@@ -2,7 +2,7 @@ package io.jenkins.plugins.dude.model;
 
 import java.util.Set;
 
-public class StatisticResults {
+public class DuDeStatisticResults {
     private Integer numberOfFilesAnalysed;
     private Integer numberOfDuplicatedCodeFragments;
     private Integer numberOfFilesContainingDuplicateFragments;
