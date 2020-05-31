@@ -63,6 +63,20 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                     }
                 }
 
+                PluginResults previousPluginResults = new PluginResults();
+                final File previousArtifactsDir = build.getPreviousBuild().getArtifactsDir();
+                for (final File file : previousArtifactsDir.listFiles()) {
+                    if (file.getName().equals("dude-statistics.json")) {
+                        previousPluginResults = new ObjectMapper().readValue(file, PluginResults.class);
+                    }
+                }
+
+                final String previousPathJSONReport = artifactsDir.getCanonicalPath() + "/previous-dude-statistics.json";
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(previousPathJSONReport),
+                                                                                       StandardCharsets.UTF_8))) {
+                    writer.write(new ObjectMapper().writeValueAsString(previousPluginResults));
+                }
+
                 final String pathJSONReport = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_JSON_PATH;
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathJSONReport),
                                                                                        StandardCharsets.UTF_8))) {

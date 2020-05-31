@@ -73,4 +73,18 @@ public class PluginResults {
     public void setPercentageOfFilesAnalysedThatHaveDuplicateFragments(final String percentageOfFilesAnalysedThatHaveDuplicateFragments) {
         this.percentageOfFilesAnalysedThatHaveDuplicateFragments = percentageOfFilesAnalysedThatHaveDuplicateFragments;
     }
+
+    @Override
+    public String toString() {
+        return "PluginResults{" +
+               "projectName='" + projectName + '\'' +
+               ", currentBuildNumber='" + currentBuildNumber + '\'' +
+               ", previousBuildNumber='" + previousBuildNumber + '\'' +
+               ", numberOfFilesAnalysed='" + numberOfFilesAnalysed + '\'' +
+               ", numberOfDuplicatedCodeFragments='" + numberOfDuplicatedCodeFragments + '\'' +
+               ", numberOfFilesContainingDuplicateFragments='" + numberOfFilesContainingDuplicateFragments + '\'' +
+               ", filesWithDuplicateFragments='" + filesWithDuplicateFragments + '\'' +
+               ", percentageOfFilesAnalysedThatHaveDuplicateFragments='" + percentageOfFilesAnalysedThatHaveDuplicateFragments + '\'' +
+               '}';
+    }
 }
