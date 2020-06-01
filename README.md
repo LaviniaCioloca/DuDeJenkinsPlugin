@@ -20,3 +20,6 @@ After Jenkins restarts you have to:
   ```java
   System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
   ```
+  
+Optional step: If you want the build to fail based on the results of DuDeJenkinsPlugin:
+* Install from **Plugin Manager** the [Post build task plugin] (https://plugins.jenkins.io/postbuild-task/) which allows to specify in a shell script the criteria for build's success/fail in Jenkins **Post-build Actions** section
