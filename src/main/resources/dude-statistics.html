@@ -7,14 +7,16 @@
     table, th, td {
       border: 1px solid black;
     }
+
     table.center {
       margin-left: auto;
       margin-right: auto;
     }
   </style>
 </head>
+
 <body>
-Project $PROJECT_NAME$ with current build number $CURRENT_BUILD_NUMBER$:
+DuDe analysis for $PROJECT_NAME$ with build number $CURRENT_BUILD_NUMBER$:
 <br/>
 <br/>
 <table class="center">
@@ -29,8 +31,22 @@ Project $PROJECT_NAME$ with current build number $CURRENT_BUILD_NUMBER$:
     <td>$NUMBER_OF_FILES_ANALYSED$</td>
     <td>$NUMBER_OF_DUPLICATED_CODE_FRAGMENTS$</td>
     <td>$NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS$</td>
-    <td>$FILES_WITH_DUPLICATE_FRAGMENTS$</td>
+    <td><span style="white-space: pre-line">$FILES_WITH_DUPLICATE_FRAGMENTS$</span></td>
     <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
+  </tr>
+</table>
+
+<br/>
+<br/>
+
+<table class="center">
+  <tr>
+    <th>Current build duplication percentage</th>
+    <th>Previous build duplication percentage</th>
+  </tr>
+  <tr>
+    <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
+    <td>$PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
   </tr>
 </table>
 </body>

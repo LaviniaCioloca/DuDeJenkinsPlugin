@@ -39,6 +39,8 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
     private static final String FILES_WITH_DUPLICATE_FRAGMENTS = "$FILES_WITH_DUPLICATE_FRAGMENTS$";
     private static final String PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS =
             "$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$";
+    private static final String PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS =
+            "$PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$";
 
     @DataBoundConstructor
     public StatisticResultsBuildWrapper() {
@@ -50,11 +52,6 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
             @Override
             public boolean tearDown(AbstractBuild build, BuildListener listener)
                     throws IOException, InterruptedException {
-                final DuDeStatisticResults currentDuDeDuDeStatisticResults =
-                        buildCurrentDuDeStatisticResults(build.getWorkspace());
-                final PluginResults pluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeDuDeStatisticResults,
-                                                                       build.getId(), build.getPreviousBuild().getId());
-                final String reportHTML = generateHTMLReport(pluginResults);
                 final File artifactsDir = build.getArtifactsDir();
                 if (!artifactsDir.isDirectory()) {
                     final boolean success = artifactsDir.mkdirs();
@@ -77,14 +74,26 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                     writer.write(new ObjectMapper().writeValueAsString(previousPluginResults));
                 }
 
+                final DuDeStatisticResults currentDuDeStatisticResults =
+                        buildCurrentDuDeStatisticResults(build.getWorkspace());
+                final PluginResults pluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeStatisticResults,
+                                                                       build.getId(), build.getPreviousBuild().getId());
+                final String reportHTML = generateHTMLReport(pluginResults, previousPluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
+
                 final String pathJSONReport = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_JSON_PATH;
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathJSONReport),
                                                                                        StandardCharsets.UTF_8))) {
                     writer.write(new ObjectMapper().writeValueAsString(pluginResults));
                 }
 
-                String path = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_HTML_PATH;
-                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path),
+                final String pathHTMLReport = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_HTML_PATH;
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathHTMLReport),
+                                                                                       StandardCharsets.UTF_8))) {
+                    writer.write(reportHTML);
+                }
+
+                final String pathHTMLReportInProjectWorkspace = build.getWorkspace() + DUDE_STATISTICS_HTML_PATH;
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathHTMLReportInProjectWorkspace),
                                                                                        StandardCharsets.UTF_8))) {
                     writer.write(reportHTML);
                 }
@@ -130,7 +139,8 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
         return pluginResults;
     }
 
-    private static String generateHTMLReport(final PluginResults pluginResults) throws IOException {
+    private static String generateHTMLReport(final PluginResults pluginResults,
+                                             final String previousPercentageOfFilesWithDuplicateFragments) throws IOException {
         final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
         try (final InputStream in = StatisticResultsBuildWrapper.class.getResourceAsStream(DUDE_STATISTICS_HTML_PATH)) {
             final byte[] buffer = new byte[8192];
@@ -150,6 +160,8 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
         content = content.replace(FILES_WITH_DUPLICATE_FRAGMENTS, pluginResults.getFilesWithDuplicateFragments());
         content = content.replace(PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS,
                                   pluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
+        content = content.replace(PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS,
+                                  previousPercentageOfFilesWithDuplicateFragments);
 
         return content;
     }
