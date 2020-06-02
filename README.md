@@ -23,3 +23,24 @@ After Jenkins restarts you have to:
   
 Optional step: If you want the build to fail based on the results of DuDeJenkinsPlugin:
 * Install from **Plugin Manager** the [Post build task plugin] (https://plugins.jenkins.io/postbuild-task/) which allows to specify in a shell script the criteria for build's success/fail in Jenkins **Post-build Actions** section
+
+* As a **Post build task** for this plugin select the following configuration:
+  * Log text: `DuDe analysis finished!`
+  * Operation: `AND`
+  * Script:
+  
+  ```sh
+  currentPercentage=`grep -o '<td>.*%</td>' dude-statistics.html | awk -F'[>|%]' '{print $2}' | head -1`
+
+  previousPercentage=`grep -o '<td>.*%</td>' dude-statistics.html | awk -F'[>|%]' '{print $2}' | tail -1`
+
+  percentageChange=`echo $currentPercentage - $previousPercentage | bc -l`
+
+  if (( $(echo "$percentageChange > 5.0" | bc -l) )) || (( $(echo "$currentPercentage > 10.0" | bc -l) )); 
+  then
+    { echo "ERROR! Duplication in project exceeds threshold limits" ; exit 1; } 
+  else
+    { echo "Duplication in project is lower than the threshold values" ; exit 0; } 
+  fi
+  ```
+  * And check the checkbox for `Escalate script execution status to job status`
