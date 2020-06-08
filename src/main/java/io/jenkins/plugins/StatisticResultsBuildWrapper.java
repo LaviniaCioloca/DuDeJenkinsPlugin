@@ -75,7 +75,7 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                     currentPluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeStatisticResults,
                                                               build.getId(), "N/A");
 
-                    reportHTML = generateHTMLReport(currentPluginResults, "0");
+                    reportHTML = generateHTMLReport(currentPluginResults, "N/A");
                 }
 
                 writePluginReports(build, artifactsDir, currentPluginResults, reportHTML);
