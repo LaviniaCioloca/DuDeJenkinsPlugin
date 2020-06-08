@@ -60,30 +60,34 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                     }
                 }
 
-                PluginResults previousPluginResults = new PluginResults();
-                final File previousArtifactsDir = build.getPreviousBuild().getArtifactsDir();
-                for (final File file : previousArtifactsDir.listFiles()) {
-                    if (file.getName().equals("dude-statistics.json")) {
-                        previousPluginResults = new ObjectMapper().readValue(file, PluginResults.class);
-                    }
+                final DuDeStatisticResults currentDuDeStatisticResults = buildCurrentDuDeStatisticResults(build.getWorkspace());
+                PluginResults currentPluginResults;
+                String reportHTML;
+
+                if (build.getPreviousBuild() != null) {
+                    final PluginResults previousPluginResults = getPreviousBuildResults(build, artifactsDir);
+
+                    currentPluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeStatisticResults,
+                                                              build.getId(), build.getPreviousBuild().getId());
+
+                    reportHTML = generateHTMLReport(currentPluginResults, previousPluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
+                } else {
+                    currentPluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeStatisticResults,
+                                                              build.getId(), "N/A");
+
+                    reportHTML = generateHTMLReport(currentPluginResults, "0");
                 }
 
-                final String previousPathJSONReport = artifactsDir.getCanonicalPath() + "/previous-dude-statistics.json";
-                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(previousPathJSONReport),
-                                                                                       StandardCharsets.UTF_8))) {
-                    writer.write(new ObjectMapper().writeValueAsString(previousPluginResults));
-                }
+                writePluginReports(build, artifactsDir, currentPluginResults, reportHTML);
 
-                final DuDeStatisticResults currentDuDeStatisticResults =
-                        buildCurrentDuDeStatisticResults(build.getWorkspace());
-                final PluginResults pluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeStatisticResults,
-                                                                       build.getId(), build.getPreviousBuild().getId());
-                final String reportHTML = generateHTMLReport(pluginResults, previousPluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
+                return super.tearDown(build, listener);
+            }
 
+            private void writePluginReports(final AbstractBuild build, final File artifactsDir, final PluginResults currentPluginResults, final String reportHTML) throws IOException {
                 final String pathJSONReport = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_JSON_PATH;
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathJSONReport),
                                                                                        StandardCharsets.UTF_8))) {
-                    writer.write(new ObjectMapper().writeValueAsString(pluginResults));
+                    writer.write(new ObjectMapper().writeValueAsString(currentPluginResults));
                 }
 
                 final String pathHTMLReport = artifactsDir.getCanonicalPath() + DUDE_STATISTICS_HTML_PATH;
@@ -97,25 +101,44 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                                                                                        StandardCharsets.UTF_8))) {
                     writer.write(reportHTML);
                 }
+            }
 
-                return super.tearDown(build, listener);
+            private PluginResults getPreviousBuildResults(final AbstractBuild build, final File artifactsDir) throws IOException {
+                PluginResults previousPluginResults = new PluginResults();
+                final File previousArtifactsDir = build.getPreviousBuild().getArtifactsDir();
+
+                for (final File file : previousArtifactsDir.listFiles()) {
+                    if (file.getName().equals("dude-statistics.json")) {
+                        previousPluginResults = new ObjectMapper().readValue(file, PluginResults.class);
+                    }
+                }
+
+                final String previousPathJSONReport = artifactsDir.getCanonicalPath() + "/previous-dude-statistics.json";
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(previousPathJSONReport),
+                                                                                       StandardCharsets.UTF_8))) {
+                    writer.write(new ObjectMapper().writeValueAsString(previousPluginResults));
+                }
+
+                return previousPluginResults;
             }
         };
     }
 
-    private static DuDeStatisticResults buildCurrentDuDeStatisticResults(FilePath root) throws IOException,
-                                                                                               InterruptedException {
+    private static DuDeStatisticResults buildCurrentDuDeStatisticResults(final FilePath root) throws IOException,
+                                                                                                     InterruptedException {
         DuDeStatisticResults DuDeStatisticResults = null;
 
         Stack<FilePath> toProcess = new Stack<>();
         toProcess.push(root);
+
         while (!toProcess.isEmpty()) {
-            FilePath path = toProcess.pop();
+            final FilePath path = toProcess.pop();
             if (path.isDirectory()) {
                 toProcess.addAll(path.list());
             } else if (path.getName().equals("dude-StatisticResults.json")) {
                 final InputStream statisticResultsStream = path.read();
                 DuDeStatisticResults = new ObjectMapper().readValue(IOUtils.toString(statisticResultsStream), DuDeStatisticResults.class);
+                break;
             }
         }
 
@@ -140,7 +163,7 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
     }
 
     private static String generateHTMLReport(final PluginResults pluginResults,
-                                             final String previousPercentageOfFilesWithDuplicateFragments) throws IOException {
+                                             String previousPercentageOfFilesWithDuplicateFragments) throws IOException {
         final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
         try (final InputStream in = StatisticResultsBuildWrapper.class.getResourceAsStream(DUDE_STATISTICS_HTML_PATH)) {
             final byte[] buffer = new byte[8192];
