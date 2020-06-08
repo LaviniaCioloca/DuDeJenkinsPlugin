@@ -30,17 +30,11 @@ Optional step: If you want the build to fail based on the results of DuDeJenkins
   * Script:
   
   ```sh
-  currentPercentage=`grep -o '<td>.*%</td>' dude-statistics.html | awk -F'[>|%]' '{print $2}' | head -1`
+  export maximum_duplication_percentage_in_project=20.0
 
-  previousPercentage=`grep -o '<td>.*%</td>' dude-statistics.html | awk -F'[>|%]' '{print $2}' | tail -1`
+  export maximum_duplication_percentage_increase_allowed=5.0
 
-  percentageChange=`echo $currentPercentage - $previousPercentage | bc -l`
-
-  if (( $(echo "$percentageChange > 5.0" | bc -l) )) || (( $(echo "$currentPercentage > 10.0" | bc -l) )); 
-  then
-    { echo "ERROR! Duplication in project exceeds threshold limits" ; exit 1; } 
-  else
-    { echo "Duplication in project is lower than the threshold values" ; exit 0; } 
-  fi
+  sh DuDe-analysis.sh
   ```
+  
   * And check the checkbox for `Escalate script execution status to job status`
