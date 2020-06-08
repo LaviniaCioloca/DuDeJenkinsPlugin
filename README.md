@@ -23,3 +23,18 @@ After Jenkins restarts you have to:
   
 Optional step: If you want the build to fail based on the results of DuDeJenkinsPlugin:
 * Install from **Plugin Manager** the [Post build task plugin] (https://plugins.jenkins.io/postbuild-task/) which allows to specify in a shell script the criteria for build's success/fail in Jenkins **Post-build Actions** section
+
+* As a **Post build task** for this plugin select the following configuration:
+  * Log text: `DuDe analysis finished!`
+  * Operation: `AND`
+  * Script:
+  
+  ```sh
+  export maximum_duplication_percentage_in_project=20.0
+
+  export maximum_duplication_percentage_increase_allowed=5.0
+
+  sh DuDe-analysis.sh
+  ```
+  
+  * And check the checkbox for `Escalate script execution status to job status`
