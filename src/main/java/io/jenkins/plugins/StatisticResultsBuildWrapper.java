@@ -26,21 +26,33 @@ import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static io.jenkins.plugins.constants.ImpactValues.HIGH_IMPACT;
+import static io.jenkins.plugins.constants.ImpactValues.LOW_IMPACT;
+import static io.jenkins.plugins.constants.ImpactValues.MEDIUM_IMPACT;
+import static io.jenkins.plugins.constants.ResultValues.CURRENT_BUILD_NUMBER;
+import static io.jenkins.plugins.constants.ResultValues.DUDE_STATISTICS_HTML_PATH;
+import static io.jenkins.plugins.constants.ResultValues.DUDE_STATISTICS_JSON_PATH;
+import static io.jenkins.plugins.constants.ResultValues.DUPLICATION_IMPACT;
+import static io.jenkins.plugins.constants.ResultValues.DUPLICATION_TREND;
+import static io.jenkins.plugins.constants.ResultValues.FILES_WITH_DUPLICATE_FRAGMENTS;
+import static io.jenkins.plugins.constants.ResultValues.NUMBER_OF_DUPLICATED_CODE_FRAGMENTS;
+import static io.jenkins.plugins.constants.ResultValues.NUMBER_OF_FILES_ANALYSED;
+import static io.jenkins.plugins.constants.ResultValues.NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS;
+import static io.jenkins.plugins.constants.ResultValues.PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS;
+import static io.jenkins.plugins.constants.ResultValues.PREVIOUS_BUILD_NUMBER;
+import static io.jenkins.plugins.constants.ResultValues.PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS;
+import static io.jenkins.plugins.constants.ResultValues.PROJECT_NAME;
+import static io.jenkins.plugins.constants.ResultValues.VALUE_NOT_AVAILABLE;
+import static io.jenkins.plugins.constants.TrendValues.CONSTANT_SYMBOL;
+import static io.jenkins.plugins.constants.TrendValues.DECREASE_ARROW_SYMBOL;
+import static io.jenkins.plugins.constants.TrendValues.INCREASE_ARROW_SYMBOL;
+
 public class StatisticResultsBuildWrapper extends BuildWrapper {
 
-    private static final String DUDE_STATISTICS_HTML_PATH = "/dude-statistics.html";
-    private static final String DUDE_STATISTICS_JSON_PATH = "/dude-statistics.json";
-    private static final String PROJECT_NAME = "$PROJECT_NAME$";
-    private static final String CURRENT_BUILD_NUMBER = "$CURRENT_BUILD_NUMBER$";
-    private static final String PREVIOUS_BUILD_NUMBER = "$PREVIOUS_BUILD_NUMBER$";
-    private static final String NUMBER_OF_FILES_ANALYSED = "$NUMBER_OF_FILES_ANALYSED$";
-    private static final String NUMBER_OF_DUPLICATED_CODE_FRAGMENTS = "$NUMBER_OF_DUPLICATED_CODE_FRAGMENTS$";
-    private static final String NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS = "$NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS$";
-    private static final String FILES_WITH_DUPLICATE_FRAGMENTS = "$FILES_WITH_DUPLICATE_FRAGMENTS$";
-    private static final String PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS =
-            "$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$";
-    private static final String PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS =
-            "$PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$";
+    private Double previousDuplicationPercentage;
+    private Double currentDuplicationPercentage;
+    private String duplicationTrend;
+    private String duplicationImpact;
 
     @DataBoundConstructor
     public StatisticResultsBuildWrapper() {
@@ -73,9 +85,9 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                     reportHTML = generateHTMLReport(currentPluginResults, previousPluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
                 } else {
                     currentPluginResults = generateJSONReport(build.getProject().getDisplayName(), currentDuDeStatisticResults,
-                                                              build.getId(), "N/A");
+                                                              build.getId(), VALUE_NOT_AVAILABLE);
 
-                    reportHTML = generateHTMLReport(currentPluginResults, "N/A");
+                    reportHTML = generateHTMLReport(currentPluginResults, VALUE_NOT_AVAILABLE);
                 }
 
                 writePluginReports(build, artifactsDir, currentPluginResults, reportHTML);
@@ -186,6 +198,55 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
         content = content.replace(PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS,
                                   previousPercentageOfFilesWithDuplicateFragments);
 
+        if (previousPercentageOfFilesWithDuplicateFragments.equals(VALUE_NOT_AVAILABLE)) {
+            content = generateTrendAndImpactValuesWithoutPreviousBuild(content,
+                                                                       pluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
+        } else {
+            content = generateTrendAndImpactValues(content,
+                                                   pluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments(),
+                                                   previousPercentageOfFilesWithDuplicateFragments);
+        }
+
+        return content;
+    }
+
+    private static String generateTrendAndImpactValuesWithoutPreviousBuild(String content, final String currentDuplicationPercentage) {
+        content = content.replace(DUPLICATION_TREND, CONSTANT_SYMBOL);
+
+        content = generateImpactValues(content, currentDuplicationPercentage);
+
+        return content;
+    }
+
+
+    private static String generateTrendAndImpactValues(String content,
+                                                       final String currentDuplicationPercentage,
+                                                       final String previousDuplicationPercentage) {
+        final Double duplicationPercentageChange =
+                Double.valueOf(currentDuplicationPercentage) - Double.valueOf(previousDuplicationPercentage);
+
+        if (duplicationPercentageChange == 0) {
+            content = content.replace(DUPLICATION_TREND, CONSTANT_SYMBOL);
+        } else if (duplicationPercentageChange < 0) {
+            content = content.replace(DUPLICATION_TREND, DECREASE_ARROW_SYMBOL);
+        } else {
+            content = content.replace(DUPLICATION_TREND, INCREASE_ARROW_SYMBOL);
+        }
+
+        content = generateImpactValues(content, currentDuplicationPercentage);
+
+        return content;
+    }
+
+    private static String generateImpactValues(String content, final String currentDuplicationPercentage) {
+        if (Double.valueOf(currentDuplicationPercentage) >= 20) {
+            content = content.replace(DUPLICATION_IMPACT, HIGH_IMPACT);
+        } else if (Double.valueOf(currentDuplicationPercentage) >= 10 && Double.valueOf(currentDuplicationPercentage) < 20) {
+            content = content.replace(DUPLICATION_IMPACT, MEDIUM_IMPACT);
+        } else {
+            content = content.replace(DUPLICATION_IMPACT, LOW_IMPACT);
+        }
+
         return content;
     }
 
@@ -195,6 +256,8 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                                    .map(Object::toString)
                                    .collect(Collectors.joining("\n"));
     }
+
+
 
     @Extension
     public static final class DescriptorImpl extends BuildWrapperDescriptor {
