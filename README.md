@@ -20,8 +20,9 @@ After Jenkins restarts you have to:
   ```java
   System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
   ```
-  
-Optional step: If you want the build to fail based on the results of DuDeJenkinsPlugin:
+Optional Steps
+===  
+1. If you want the build to fail based on the results of DuDeJenkinsPlugin:
 * Install from **Plugin Manager** the [Post build task plugin] (https://plugins.jenkins.io/postbuild-task/) which allows to specify in a shell script the criteria for build's success/fail in Jenkins **Post-build Actions** section
 
 * As a **Post build task** for this plugin select the following configuration:
@@ -38,3 +39,10 @@ Optional step: If you want the build to fail based on the results of DuDeJenkins
   ```
   
   * And check the checkbox for `Escalate script execution status to job status`
+
+2. If you want the HTML report to be published in the info section of the project
+* Install from **Plugin Manager** the [HTML Publisher plugin] (https://plugins.jenkins.io/htmlpublisher/)
+
+* As a **Post build task** for this plugin select the following configuration:
+  * Index page: dude-statistics.html
+  * Report tile: DuDe Report
