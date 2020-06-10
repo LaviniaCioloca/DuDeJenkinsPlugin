@@ -4,34 +4,58 @@
   <meta charset="UTF-8">
   <title>$PROJECT_NAME$</title>
   <style>
-    table, th, td {
-      border: 1px solid black;
+    .title {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      text-align: center;
+      font-size: 24px;
     }
 
-    table.center {
+    .results {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 70%;
+      text-align: center;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    .results td, .results th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    .results tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .results th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: center;
+      background-color: #0066cc;
+      color: white;
     }
   </style>
 </head>
 
 <body>
-DuDe analysis for $PROJECT_NAME$ with build number $CURRENT_BUILD_NUMBER$:
+
+<p class="title">DuDe analysis results on <span style="color: #0066cc;">$PROJECT_NAME$</span> project for build number
+  <span style="color: #0066cc;">$CURRENT_BUILD_NUMBER$</span>:</p>
+
 <br/>
 <br/>
-<table class="center">
+<table class="results">
   <tr>
     <th>Files analysed</th>
     <th>Duplicated fragments</th>
     <th>Number of files with duplicated fragments</th>
-    <th>Files with duplicated fragments</th>
     <th>Percentage of files with duplicates</th>
   </tr>
   <tr>
     <td>$NUMBER_OF_FILES_ANALYSED$</td>
     <td>$NUMBER_OF_DUPLICATED_CODE_FRAGMENTS$</td>
     <td>$NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS$</td>
-    <td><span style="white-space: pre-line">$FILES_WITH_DUPLICATE_FRAGMENTS$</span></td>
     <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
   </tr>
 </table>
@@ -39,14 +63,20 @@ DuDe analysis for $PROJECT_NAME$ with build number $CURRENT_BUILD_NUMBER$:
 <br/>
 <br/>
 
-<table class="center">
+<p class="title">Duplication trend analysis</p>
+
+<table class="results">
   <tr>
-    <th>Current build duplication percentage</th>
     <th>Previous build duplication percentage</th>
+    <th>Current build duplication percentage</th>
+    <th>Trend</th>
+    <th>Impact</th>
   </tr>
   <tr>
-    <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
     <td>$PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
+    <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
+    <td><span>$DUPLICATION_TREND$</span></td>
+    <td>$DUPLICATION_IMPACT$</td>
   </tr>
 </table>
 </body>
