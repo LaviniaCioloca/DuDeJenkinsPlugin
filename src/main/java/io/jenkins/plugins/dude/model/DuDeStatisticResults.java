@@ -8,6 +8,8 @@ public class DuDeStatisticResults {
     private Integer numberOfFilesContainingDuplicateFragments;
     private Set<String> filesWithDuplicateFragments;
     private Double percentageOfFilesAnalysedThatHaveDuplicateFragments;
+    private DuplicationFragment duplicationFragmentWithMostLOC;
+    private DuplicationFragment duplicationFragmentPresentInMostFiles;
 
     public Integer getNumberOfFilesAnalysed() {
         return numberOfFilesAnalysed;
@@ -47,5 +49,21 @@ public class DuDeStatisticResults {
 
     public void setPercentageOfFilesAnalysedThatHaveDuplicateFragments(final Double percentageOfFilesAnalysedThatHaveDuplicateFragments) {
         this.percentageOfFilesAnalysedThatHaveDuplicateFragments = percentageOfFilesAnalysedThatHaveDuplicateFragments;
+    }
+
+    public DuplicationFragment getDuplicationFragmentWithMostLOC() {
+        return duplicationFragmentWithMostLOC;
+    }
+
+    public void setDuplicationFragmentWithMostLOC(final DuplicationFragment duplicationFragmentWithMostLOC) {
+        this.duplicationFragmentWithMostLOC = duplicationFragmentWithMostLOC;
+    }
+
+    public DuplicationFragment getDuplicationFragmentPresentInMostFiles() {
+        return duplicationFragmentPresentInMostFiles;
+    }
+
+    public void setDuplicationFragmentPresentInMostFiles(final DuplicationFragment duplicationFragmentPresentInMostFiles) {
+        this.duplicationFragmentPresentInMostFiles = duplicationFragmentPresentInMostFiles;
     }
 }

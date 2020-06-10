@@ -4,6 +4,7 @@ public class ResultValues {
     public static final String DUDE_STATISTICS_HTML_PATH = "/dude-statistics.html";
     public static final String DUDE_STATISTICS_JSON_PATH = "/dude-statistics.json";
 
+    // For table 1 with overall analysis
     public static final String VALUE_NOT_AVAILABLE = "N/A";
     public static final String PROJECT_NAME = "$PROJECT_NAME$";
     public static final String CURRENT_BUILD_NUMBER = "$CURRENT_BUILD_NUMBER$";
@@ -16,6 +17,24 @@ public class ResultValues {
             "$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$";
     public static final String PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS =
             "$PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$";
+
+    // For table 2 with DuplicationFragment analysis
+    public static final String DUPLICATION_FRAGMENT_WITH_MOST_LOC_TOTAL_LOC = "$DUPLICATION_FRAGMENT_WITH_MOST_LOC_TOTAL_LOC$";
+    public static final String DUPLICATION_FRAGMENT_WITH_MOST_LOC_ACTUAL_LOC = "$DUPLICATION_FRAGMENT_WITH_MOST_LOC_ACTUAL_LOC$";
+    public static final String DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES_COUNT =
+            "$DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES_COUNT$";
+    public static final String DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES = "$DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES$";
+
+    public static final String DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_TOTAL_LOC =
+            "$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_TOTAL_LOC$";
+    public static final String DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_ACTUAL_LOC =
+            "$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_ACTUAL_LOC$";
+    public static final String DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES_COUNT =
+            "$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES_COUNT$";
+    public static final String DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES =
+            "$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES$";
+
+    // For table 3 with trend analysis
     public static final String DUPLICATION_TREND = "$DUPLICATION_TREND$";
     public static final String DUPLICATION_IMPACT = "$DUPLICATION_IMPACT$";
 }

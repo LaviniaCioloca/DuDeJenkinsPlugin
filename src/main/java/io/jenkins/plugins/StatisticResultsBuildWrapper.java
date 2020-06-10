@@ -29,20 +29,7 @@ import java.util.stream.Collectors;
 import static io.jenkins.plugins.constants.ImpactValues.HIGH_IMPACT;
 import static io.jenkins.plugins.constants.ImpactValues.LOW_IMPACT;
 import static io.jenkins.plugins.constants.ImpactValues.MEDIUM_IMPACT;
-import static io.jenkins.plugins.constants.ResultValues.CURRENT_BUILD_NUMBER;
-import static io.jenkins.plugins.constants.ResultValues.DUDE_STATISTICS_HTML_PATH;
-import static io.jenkins.plugins.constants.ResultValues.DUDE_STATISTICS_JSON_PATH;
-import static io.jenkins.plugins.constants.ResultValues.DUPLICATION_IMPACT;
-import static io.jenkins.plugins.constants.ResultValues.DUPLICATION_TREND;
-import static io.jenkins.plugins.constants.ResultValues.FILES_WITH_DUPLICATE_FRAGMENTS;
-import static io.jenkins.plugins.constants.ResultValues.NUMBER_OF_DUPLICATED_CODE_FRAGMENTS;
-import static io.jenkins.plugins.constants.ResultValues.NUMBER_OF_FILES_ANALYSED;
-import static io.jenkins.plugins.constants.ResultValues.NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS;
-import static io.jenkins.plugins.constants.ResultValues.PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS;
-import static io.jenkins.plugins.constants.ResultValues.PREVIOUS_BUILD_NUMBER;
-import static io.jenkins.plugins.constants.ResultValues.PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS;
-import static io.jenkins.plugins.constants.ResultValues.PROJECT_NAME;
-import static io.jenkins.plugins.constants.ResultValues.VALUE_NOT_AVAILABLE;
+import static io.jenkins.plugins.constants.ResultValues.*;
 import static io.jenkins.plugins.constants.TrendValues.CONSTANT_SYMBOL;
 import static io.jenkins.plugins.constants.TrendValues.DECREASE_ARROW_SYMBOL;
 import static io.jenkins.plugins.constants.TrendValues.INCREASE_ARROW_SYMBOL;
@@ -171,6 +158,20 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
         pluginResults.setFilesWithDuplicateFragments(getFilesWithDuplicateFragmentsAsString(currentDuDeStatisticResults));
         pluginResults.setPercentageOfFilesAnalysedThatHaveDuplicateFragments(String.valueOf(currentDuDeStatisticResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments()));
 
+        // duplication fragments setters
+        pluginResults.setDuplicationFragmentWithMostLOCTotalLOC(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentWithMostLOC().getDuplicationTotalLOC()));
+        pluginResults.setDuplicationFragmentWithMostLOCActualLOC(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentWithMostLOC().getDuplicationActualLOC()));
+        pluginResults.setDuplicationFragmentWithMostLOCFilesCount(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentWithMostLOC().getFilesHavingThisDuplicationFragmentCount()));
+        pluginResults.setDuplicationFragmentWithMostLOCFiles(String.join("\n",
+                                                                         currentDuDeStatisticResults.getDuplicationFragmentWithMostLOC().getFilesHavingThisDuplicationFragment()));
+
+        pluginResults.setDuplicationFragmentPresentInMostFilesTotalLOC(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getDuplicationTotalLOC()));
+        pluginResults.setDuplicationFragmentPresentInMostFilesActualLOC(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getDuplicationActualLOC()));
+        pluginResults.setDuplicationFragmentPresentInMostFilesFilesCount(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getFilesHavingThisDuplicationFragmentCount()));
+        pluginResults.setDuplicationFragmentPresentInMostFilesFiles(String.join("\n",
+                                                                         currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getFilesHavingThisDuplicationFragment()));
+
+
         return pluginResults;
     }
 
@@ -191,12 +192,33 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
         content = content.replace(PREVIOUS_BUILD_NUMBER, pluginResults.getPreviousBuildNumber());
         content = content.replace(NUMBER_OF_FILES_ANALYSED, pluginResults.getNumberOfFilesAnalysed());
         content = content.replace(NUMBER_OF_DUPLICATED_CODE_FRAGMENTS, pluginResults.getNumberOfDuplicatedCodeFragments());
-        content = content.replace(NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS, pluginResults.getNumberOfFilesContainingDuplicateFragments());
+        content = content.replace(NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS,
+                                  pluginResults.getNumberOfFilesContainingDuplicateFragments());
         content = content.replace(FILES_WITH_DUPLICATE_FRAGMENTS, pluginResults.getFilesWithDuplicateFragments());
         content = content.replace(PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS,
                                   pluginResults.getPercentageOfFilesAnalysedThatHaveDuplicateFragments());
         content = content.replace(PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS,
                                   previousPercentageOfFilesWithDuplicateFragments);
+
+        // duplication fragment with most LOC
+        content = content.replace(DUPLICATION_FRAGMENT_WITH_MOST_LOC_TOTAL_LOC,
+                                  pluginResults.getDuplicationFragmentWithMostLOCTotalLOC());
+        content = content.replace(DUPLICATION_FRAGMENT_WITH_MOST_LOC_ACTUAL_LOC,
+                                  pluginResults.getDuplicationFragmentWithMostLOCActualLOC());
+        content = content.replace(DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES_COUNT,
+                                  pluginResults.getDuplicationFragmentWithMostLOCFilesCount());
+        content = content.replace(DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES,
+                                  pluginResults.getDuplicationFragmentWithMostLOCFiles());
+
+        // duplication fragment present in most files
+        content = content.replace(DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_TOTAL_LOC,
+                                  pluginResults.getDuplicationFragmentPresentInMostFilesTotalLOC());
+        content = content.replace(DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_ACTUAL_LOC,
+                                  pluginResults.getDuplicationFragmentPresentInMostFilesActualLOC());
+        content = content.replace(DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES_COUNT,
+                                  pluginResults.getDuplicationFragmentPresentInMostFilesFilesCount());
+        content = content.replace(DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES,
+                                  pluginResults.getDuplicationFragmentPresentInMostFilesFiles());
 
         if (previousPercentageOfFilesWithDuplicateFragments.equals(VALUE_NOT_AVAILABLE)) {
             content = generateTrendAndImpactValuesWithoutPreviousBuild(content,
@@ -217,7 +239,6 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
 
         return content;
     }
-
 
     private static String generateTrendAndImpactValues(String content,
                                                        final String currentDuplicationPercentage,
@@ -256,8 +277,6 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
                                    .map(Object::toString)
                                    .collect(Collectors.joining("\n"));
     }
-
-
 
     @Extension
     public static final class DescriptorImpl extends BuildWrapperDescriptor {

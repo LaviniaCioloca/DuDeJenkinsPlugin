@@ -10,6 +10,16 @@ public class PluginResults {
     private String filesWithDuplicateFragments;
     private String percentageOfFilesAnalysedThatHaveDuplicateFragments;
 
+    // duplicationFragment analysis
+    private String duplicationFragmentWithMostLOCTotalLOC;
+    private String duplicationFragmentWithMostLOCActualLOC;
+    private String duplicationFragmentWithMostLOCFilesCount;
+    private String duplicationFragmentWithMostLOCFiles;
+    private String duplicationFragmentPresentInMostFilesTotalLOC;
+    private String duplicationFragmentPresentInMostFilesActualLOC;
+    private String duplicationFragmentPresentInMostFilesFilesCount;
+    private String duplicationFragmentPresentInMostFilesFiles;
+
     public String getProjectName() {
         return projectName;
     }
@@ -72,6 +82,70 @@ public class PluginResults {
 
     public void setPercentageOfFilesAnalysedThatHaveDuplicateFragments(final String percentageOfFilesAnalysedThatHaveDuplicateFragments) {
         this.percentageOfFilesAnalysedThatHaveDuplicateFragments = percentageOfFilesAnalysedThatHaveDuplicateFragments;
+    }
+
+    public String getDuplicationFragmentWithMostLOCTotalLOC() {
+        return duplicationFragmentWithMostLOCTotalLOC;
+    }
+
+    public void setDuplicationFragmentWithMostLOCTotalLOC(final String duplicationFragmentWithMostLOCTotalLOC) {
+        this.duplicationFragmentWithMostLOCTotalLOC = duplicationFragmentWithMostLOCTotalLOC;
+    }
+
+    public String getDuplicationFragmentWithMostLOCActualLOC() {
+        return duplicationFragmentWithMostLOCActualLOC;
+    }
+
+    public void setDuplicationFragmentWithMostLOCActualLOC(final String duplicationFragmentWithMostLOCActualLOC) {
+        this.duplicationFragmentWithMostLOCActualLOC = duplicationFragmentWithMostLOCActualLOC;
+    }
+
+    public String getDuplicationFragmentWithMostLOCFilesCount() {
+        return duplicationFragmentWithMostLOCFilesCount;
+    }
+
+    public void setDuplicationFragmentWithMostLOCFilesCount(final String duplicationFragmentWithMostLOCFilesCount) {
+        this.duplicationFragmentWithMostLOCFilesCount = duplicationFragmentWithMostLOCFilesCount;
+    }
+
+    public String getDuplicationFragmentWithMostLOCFiles() {
+        return duplicationFragmentWithMostLOCFiles;
+    }
+
+    public void setDuplicationFragmentWithMostLOCFiles(final String duplicationFragmentWithMostLOCFiles) {
+        this.duplicationFragmentWithMostLOCFiles = duplicationFragmentWithMostLOCFiles;
+    }
+
+    public String getDuplicationFragmentPresentInMostFilesTotalLOC() {
+        return duplicationFragmentPresentInMostFilesTotalLOC;
+    }
+
+    public void setDuplicationFragmentPresentInMostFilesTotalLOC(final String duplicationFragmentPresentInMostFilesTotalLOC) {
+        this.duplicationFragmentPresentInMostFilesTotalLOC = duplicationFragmentPresentInMostFilesTotalLOC;
+    }
+
+    public String getDuplicationFragmentPresentInMostFilesActualLOC() {
+        return duplicationFragmentPresentInMostFilesActualLOC;
+    }
+
+    public void setDuplicationFragmentPresentInMostFilesActualLOC(final String duplicationFragmentPresentInMostFilesActualLOC) {
+        this.duplicationFragmentPresentInMostFilesActualLOC = duplicationFragmentPresentInMostFilesActualLOC;
+    }
+
+    public String getDuplicationFragmentPresentInMostFilesFilesCount() {
+        return duplicationFragmentPresentInMostFilesFilesCount;
+    }
+
+    public void setDuplicationFragmentPresentInMostFilesFilesCount(final String duplicationFragmentPresentInMostFilesFilesCount) {
+        this.duplicationFragmentPresentInMostFilesFilesCount = duplicationFragmentPresentInMostFilesFilesCount;
+    }
+
+    public String getDuplicationFragmentPresentInMostFilesFiles() {
+        return duplicationFragmentPresentInMostFilesFiles;
+    }
+
+    public void setDuplicationFragmentPresentInMostFilesFiles(final String duplicationFragmentPresentInMostFilesFiles) {
+        this.duplicationFragmentPresentInMostFilesFiles = duplicationFragmentPresentInMostFilesFiles;
     }
 
     @Override
