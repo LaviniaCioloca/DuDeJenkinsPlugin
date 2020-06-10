@@ -35,7 +35,49 @@
       background-color: #0066cc;
       color: white;
     }
+
+    .trend-symbol {
+      font-size: 32px;
+      font-weight: bold;
+    }
   </style>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      $('#result td.percentage').each(function () {
+        const percentageValue = parseFloat($(this).text());
+        if (percentageValue >= 20) {
+          $(this).css('background-color', '#ff4d4d');
+        } else if (percentageValue >= 15 && percentageValue < 20) {
+          $(this).css('background-color', '#ff9966');
+        } else {
+          $(this).css('background-color', '#8cd98c');
+        }
+      });
+
+      $('#trend td.impact').each(function () {
+        if ($(this).text() == 'High') {
+          $(this).css('background-color', '#ff4d4d');
+        } else if ($(this).text() == 'Medium') {
+          $(this).css('background-color', '#ff9966');
+        } else {
+          $(this).css('background-color', '#8cd98c');
+        }
+      });
+
+      $('#trend td.arrow').each(function () {
+        if ($(this).text() == '↗') {
+          $(this).css('color', '#ff4d4d');
+        } else if ($(this).text() == '↘') {
+          $(this).css('color', '#8cd98c');
+        } else {
+          $(this).css('color', '#3366cc');
+        }
+      });
+    });
+
+  </script>
 </head>
 
 <body>
@@ -45,7 +87,7 @@
 
 <br/>
 <br/>
-<table class="results">
+<table id="result" class="results">
   <tr>
     <th>Files analysed</th>
     <th>Duplicated fragments</th>
@@ -56,7 +98,36 @@
     <td>$NUMBER_OF_FILES_ANALYSED$</td>
     <td>$NUMBER_OF_DUPLICATED_CODE_FRAGMENTS$</td>
     <td>$NUMBER_OF_FILES_CONTAINING_DUPLICATE_FRAGMENTS$</td>
-    <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
+    <td class="percentage">$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
+  </tr>
+</table>
+
+<br/>
+<br/>
+
+<p class="title">Duplication fragments analysis</p>
+
+<table class="results">
+  <tr>
+    <th></th>
+    <th>Total LOC</th>
+    <th>Actual LOC</th>
+    <th>Number of files having this duplication</th>
+    <th>Files having this duplication fragment</th>
+  </tr>
+  <tr>
+    <td style="width: 25%;">Duplication fragment with most LOC</td>
+    <td>$DUPLICATION_FRAGMENT_WITH_MOST_LOC_TOTAL_LOC$</td>
+    <td style="background-color: #ff9966">$DUPLICATION_FRAGMENT_WITH_MOST_LOC_ACTUAL_LOC$</td>
+    <td>$DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES_COUNT$</td>
+    <td style="text-align: left;">$DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES$</td>
+  </tr>
+  <tr>
+    <td>Duplication fragment present in most files</td>
+    <td>$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_TOTAL_LOC$</td>
+    <td>$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_ACTUAL_LOC$</td>
+    <td style="background-color: #ff9966">$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES_COUNT$</td>
+    <td style="text-align: left;">$DUPLICATION_FRAGMENT_PRESENT_IN_MOST_FILES_FILES$</td>
   </tr>
 </table>
 
@@ -65,18 +136,18 @@
 
 <p class="title">Duplication trend analysis</p>
 
-<table class="results">
+<table id="trend" class="results">
   <tr>
     <th>Previous build duplication percentage</th>
     <th>Current build duplication percentage</th>
-    <th>Trend</th>
-    <th>Impact</th>
+    <th>Duplication Trend</th>
+    <th>Duplication Impact</th>
   </tr>
   <tr>
     <td>$PREVIOUS_PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
     <td>$PERCENTAGE_OF_FILES_ANALYSED_THAT_HAVE_DUPLICATE_FRAGMENTS$ %</td>
-    <td><span>$DUPLICATION_TREND$</span></td>
-    <td>$DUPLICATION_IMPACT$</td>
+    <td class="arrow trend-symbol"><span>$DUPLICATION_TREND$</span></td>
+    <td class="impact">$DUPLICATION_IMPACT$</td>
   </tr>
 </table>
 </body>
