@@ -169,8 +169,7 @@ public class StatisticResultsBuildWrapper extends BuildWrapper {
         pluginResults.setDuplicationFragmentPresentInMostFilesActualLOC(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getDuplicationActualLOC()));
         pluginResults.setDuplicationFragmentPresentInMostFilesFilesCount(String.valueOf(currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getFilesHavingThisDuplicationFragmentCount()));
         pluginResults.setDuplicationFragmentPresentInMostFilesFiles(String.join("\n",
-                                                                         currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getFilesHavingThisDuplicationFragment()));
-
+                                                                                currentDuDeStatisticResults.getDuplicationFragmentPresentInMostFiles().getFilesHavingThisDuplicationFragment()));
 
         return pluginResults;
     }
