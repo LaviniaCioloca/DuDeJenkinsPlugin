@@ -5,15 +5,18 @@
   <title>$PROJECT_NAME$</title>
   <style>
     .title {
-      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-      text-align: center;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      letter-spacing: 2.5px;
+      text-align: left;
       font-size: 24px;
     }
 
     .results {
       font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
       border-collapse: collapse;
-      width: 70%;
+      width: 80%;
       text-align: center;
       margin-left: auto;
       margin-right: auto;
@@ -32,13 +35,51 @@
       padding-top: 12px;
       padding-bottom: 12px;
       text-align: center;
-      background-color: #0066cc;
+      background-color: #465d74;
       color: white;
     }
 
     .trend-symbol {
       font-size: 32px;
       font-weight: bold;
+    }
+
+    .view-button {
+      background-color: #5d85ae;
+      border: none;
+      color: white;
+      width: 270px;
+      padding: 17px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 12px;
+      display: inline-block;
+      -webkit-box-shadow: 4px 3px 5px 0px rgba(91, 91, 91, 0.75);
+      -moz-box-shadow: 4px 3px 5px 0px  rgba(91, 91, 91, 0.75);
+      box-shadow: 4px 3px 5px 0px rgba(91, 91, 91, 0.75);
+    }
+
+    .download-button {
+      background-color: #1f9d7d;
+      border: none;
+      color: white;
+      width: 270px;
+      padding: 17px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 12px;
+      display: inline-block;
+      -webkit-box-shadow: 4px 3px 5px 0px rgba(91, 91, 91, 0.75);
+      -moz-box-shadow: 4px 3px 5px 0px  rgba(91, 91, 91, 0.75);
+      box-shadow: 4px 3px 5px 0px rgba(91, 91, 91, 0.75);
     }
   </style>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
@@ -86,7 +127,6 @@
   <span style="color: #0066cc;">$CURRENT_BUILD_NUMBER$</span>:</p>
 
 <br/>
-<br/>
 <table id="result" class="results">
   <tr>
     <th>Files analysed</th>
@@ -103,20 +143,19 @@
 </table>
 
 <br/>
-<br/>
 
-<p class="title">Duplication fragments analysis</p>
+<p class="title">Duplication fragments</p>
 
 <table class="results">
   <tr>
-    <th></th>
-    <th>Total LOC</th>
-    <th>Actual LOC</th>
-    <th>Number of files having this duplication</th>
-    <th>Files having this duplication fragment</th>
+    <th style="width: 25%;"></th>
+    <th style="width: 10%;">Total LOC</th>
+    <th style="width: 10%;">Actual LOC</th>
+    <th style="width: 10%;">No. of files in which is present</th>
+    <th>Files in which is present</th>
   </tr>
   <tr>
-    <td style="width: 25%;">Duplication fragment with most LOC</td>
+    <td>Duplication fragment with most LOC</td>
     <td>$DUPLICATION_FRAGMENT_WITH_MOST_LOC_TOTAL_LOC$</td>
     <td style="background-color: #ff9966">$DUPLICATION_FRAGMENT_WITH_MOST_LOC_ACTUAL_LOC$</td>
     <td>$DUPLICATION_FRAGMENT_WITH_MOST_LOC_FILES_COUNT$</td>
@@ -132,9 +171,8 @@
 </table>
 
 <br/>
-<br/>
 
-<p class="title">Duplication trend analysis</p>
+<p class="title">Duplication trend</p>
 
 <table id="trend" class="results">
   <tr>
@@ -150,5 +188,16 @@
     <td class="impact">$DUPLICATION_IMPACT$</td>
   </tr>
 </table>
+
+<br/>
+
+<div style="text-align: center;">
+  <button class="view-button" type="submit" onclick="window.open('dude-StatisticResults.json')">View detailed results
+  </button>
+
+  <button class="download-button"><a style="text-decoration: none; color: white" href="dude-StatisticResults.json"
+                            download="dude-StatisticResults.json">Download detailed results</a></button>
+</div>
+
 </body>
 </html>
